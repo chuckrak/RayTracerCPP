@@ -3,6 +3,7 @@
 #include "ray.h"
 
 #include <iostream>
+#include <memory>
 
 
 
@@ -39,7 +40,10 @@ int main () {
         for(int i = 0; i < image_width; i++){
             auto u = double(i) / (image_width-1);
             auto v = double(j) / (image_height-1);
-            ray r(origin, lower_left_corner + u*horizontal + v*vertical - origin);
+            point3 orig = origin;
+            vec3 dir = lower_left_corner + u*horizontal + v*vertical - origin;
+            ray r = ray(orig, dir);
+
             color pixel_color = ray_color(r);
             write_color(std::cout, pixel_color);
         }
