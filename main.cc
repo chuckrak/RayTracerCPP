@@ -71,6 +71,15 @@ Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &s
     float specular_light_intensity = 0;
     for (size_t i = 0; i < lights.size(); i++){
         Vec3f light_dir = (lights[i].position - point).normalize();
+        float light_distance = (lights[i].position - point).norm();
+
+        Vec3f shadow_orig = light_dir * N < 0 ? point - N*1e-3 : point + N*1e-3;
+        Vec3f shadow_pt, shadow_N;
+        Material temp_mat;
+        if(scene_intersect(shadow_orig, light_dir, spheres, shadow_pt, shadow_N, temp_mat) && (shadow_pt - shadow_orig).norm() < light_distance){
+            continue;
+        }
+
         diffuse_light_intensity += lights[i].intensity * std::max(0.f, light_dir*N);
         specular_light_intensity += powf(std::max(0.f, reflect(light_dir, N) * dir), material.specular_exponent)*lights[i].intensity;
     }
@@ -120,9 +129,9 @@ int main() {
     Material green(Vec2f(0.1, 0.9), Vec3f(0.16, 0.8, 0.24), 30.);
     std::vector<Sphere> spheres;
     spheres.push_back(Sphere(Vec3f(-3, 0, -16), 2, ivory));
-    spheres.push_back(Sphere(Vec3f(-1.0, -3, -10), 3, green));
-    spheres.push_back(Sphere(Vec3f(1.5, -2, -20), 2, green));
-    spheres.push_back(Sphere(Vec3f(7, 5, -18), 2, red_rubber));
+    spheres.push_back(Sphere(Vec3f(-1.0, -1.5, -12), 2, green));
+    spheres.push_back(Sphere(Vec3f( 1.5, -0.5, -18), 3, green));
+    spheres.push_back(Sphere(Vec3f(7, 5, -18), 4, red_rubber));
 
     std::vector<Light> lights;
     lights.push_back(Light(Vec3f(-20, 30, 30), 1.5));
